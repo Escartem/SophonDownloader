@@ -5,7 +5,7 @@ VisualStudioVersion = 17.12.35931.192 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{F1C7B769-23A4-434D-AFB5-38A5F5B218AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sophon", "Sophon\Sophon.csproj", "{5460BABD-E520-4DAA-94C9-5EA012C252AF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sophon", "Hi3Helper.Sophon\Hi3Helper.Sophon.csproj", "{5460BABD-E520-4DAA-94C9-5EA012C252AF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

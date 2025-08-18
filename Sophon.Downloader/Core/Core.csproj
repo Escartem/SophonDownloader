@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Sophon\Sophon.csproj" />
+    <ProjectReference Include="..\Hi3Helper.Sophon\Hi3Helper.Sophon.csproj" />
   </ItemGroup>
 
 </Project>
