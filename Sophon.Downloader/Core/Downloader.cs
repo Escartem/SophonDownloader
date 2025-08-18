@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Net;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Hi3Helper.Sophon.Structs;
 using Hi3Helper.Sophon;
 using System.Threading.Tasks.Dataflow;
 
