@@ -1,3 +1,3 @@
-[submodule "Sophon.Downloader/Hi3Helper.Sophon"]
-	path = Sophon.Downloader/Hi3Helper.Sophon
-	url = https://github.com/CollapseLauncher/Hi3Helper.Sophon.git
+[submodule "Sophon.Downloader/Sophon"]
+	path = Sophon.Downloader/Sophon
+	url = https://github.com/CollapseLauncher/Hi3Helper.Sophon
