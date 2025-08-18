@@ -19,17 +19,17 @@ namespace Hi3Helper.Sophon.Helper
         {
         #if NET6_0_OR_GREATER
             return reader.TokenType switch
-                   {
-                       JsonTokenType.True => true,
-                       JsonTokenType.False => false,
-                       JsonTokenType.String => bool.TryParse(reader.GetString(), out bool boolFromString)
-                           ? boolFromString
-                           : throw new JsonException(),
-                       JsonTokenType.Number => reader.TryGetInt64(out long boolFromNumber)
-                           ? Convert.ToBoolean(boolFromNumber)
-                           : reader.TryGetDouble(out double boolFromDouble) && Convert.ToBoolean(boolFromDouble),
-                       _ => throw new JsonException()
-                   };
+            {
+                JsonTokenType.True => true,
+                JsonTokenType.False => false,
+                JsonTokenType.String => bool.TryParse(reader.GetString(), out bool boolFromString)
+                    ? boolFromString
+                    : throw new JsonException(),
+                JsonTokenType.Number => reader.TryGetInt64(out long boolFromNumber)
+                    ? Convert.ToBoolean(boolFromNumber)
+                    : reader.TryGetDouble(out double boolFromDouble) && Convert.ToBoolean(boolFromDouble),
+                _ => throw new JsonException()
+            };
         #else
             switch (reader.TokenType)
             {

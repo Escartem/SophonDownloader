@@ -13,11 +13,11 @@ namespace Hi3Helper.Sophon.Structs
 #if NET6_0_OR_GREATER
     [JsonSerializable(typeof(SophonManifestBuildBranch))]
     [JsonSerializable(typeof(SophonManifestPatchBranch))]
-    public partial class SophonContext : JsonSerializerContext { }
+    public partial class SophonContext : JsonSerializerContext;
 #endif
 
     #region SophonManifestBuild Classes
-    public class SophonManifestBuildBranch : SophonBranch { }
+    public class SophonManifestBuildBranch : SophonBranch;
 
     [Obsolete("To avoid future breaking changes, please rename your instance to SophonManifestBuildBranch as this class will be renamed in future release")]
     public class SophonBranch : SophonManifestReturnedResponse
@@ -25,7 +25,7 @@ namespace Hi3Helper.Sophon.Structs
         [JsonPropertyName("data")] public SophonManifestBuildData Data { get; set; }
     }
 
-    public class SophonManifestBuildData : SophonData { }
+    public class SophonManifestBuildData : SophonData;
 
     [Obsolete("To avoid future breaking changes, please define your instance as SophonManifestBuildData instead as this class will be renamed in future release")]
     public class SophonData : SophonTaggedResponse

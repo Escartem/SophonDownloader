@@ -7,12 +7,12 @@ namespace Hi3Helper.Sophon.Infos
 {
     public class SophonManifestInfo
     {
-        public string ManifestBaseUrl        { get; internal set; }
-        public string ManifestId             { get; internal set; }
-        public string ManifestChecksumMd5    { get; internal set; }
-        public bool   IsUseCompression       { get; internal set; }
-        public long   ManifestSize           { get; internal set; }
-        public long   ManifestCompressedSize { get; internal set; }
+        public   string          ManifestBaseUrl        { get; internal set; }
+        public   string          ManifestId             { get; internal set; }
+        public   string          ManifestChecksumMd5    { get; internal set; }
+        public   bool            IsUseCompression       { get; internal set; }
+        public   long            ManifestSize           { get; internal set; }
+        public   long            ManifestCompressedSize { get; internal set; }
 
         public string ManifestFileUrl => ManifestBaseUrl.TrimEnd('/') + '/' + ManifestId;
     }
@@ -54,8 +54,7 @@ namespace Hi3Helper.Sophon
                                                             bool   isUseCompression,
                                                             long   manifestSize,
                                                             long   manifestCompressedSize = 0)
-            =>
-            new()
+            => new()
             {
                 ManifestBaseUrl        = manifestBaseUrl,
                 ManifestChecksumMd5    = manifestChecksumMd5,

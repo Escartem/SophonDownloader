@@ -13,14 +13,17 @@ namespace Hi3Helper.Sophon;
 public sealed class ChunkStream : Stream
 {
     private readonly Stream _stream;
-    private long Start { get; }
-    private long End { get; }
-    private long Size { get => End - Start; }
-    private long CurPos { get; set; }
-    private long Remain { get => Size - CurPos; }
-    private bool IsDisposing { get; }
+    private          long   Start       { get; }
+    private          long   End         { get; }
+    private          long   Size        { get => End - Start; }
+    private          long   CurPos      { get; set; }
+    private          long   Remain      { get => Size - CurPos; }
+    private          bool   IsDisposing { get; }
 
-    public ChunkStream(Stream stream, long start, long end, bool isDisposing = false)
+    public ChunkStream(Stream stream,
+                       long   start,
+                       long   end,
+                       bool   isDisposing = false)
     {
         _stream = stream;
 
@@ -56,7 +59,8 @@ public sealed class ChunkStream : Stream
         return read;
     }
 
-    public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken token = default)
+    public override async ValueTask<int> ReadAsync(Memory<byte>      buffer,
+                                                   CancellationToken token = default)
     {
         if (Remain == 0) return 0;
 
@@ -80,7 +84,10 @@ public sealed class ChunkStream : Stream
         return read;
     }
 
-    public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken token)
+    public override async Task<int> ReadAsync(byte[]            buffer,
+                                              int               offset,
+                                              int               count,
+                                              CancellationToken token)
     {
         if (Remain == 0) return 0;
 
@@ -108,7 +115,8 @@ public sealed class ChunkStream : Stream
         _stream.Write(buffer[..toSlice]);
     }
 
-    public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken token = default)
+    public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer,
+                                               CancellationToken    token = default)
     {
         if (Remain == 0) return;
 
@@ -119,7 +127,9 @@ public sealed class ChunkStream : Stream
     }
 #endif
 
-    public override void Write(byte[] buffer, int offset, int count)
+    public override void Write(byte[] buffer,
+                               int    offset,
+                               int    count)
     {
         int toRead = (int)(Remain < count ? Remain : count);
         int toOffset = offset > Remain ? 0 : offset;
@@ -129,7 +139,10 @@ public sealed class ChunkStream : Stream
         _stream.Write(buffer, offset, toRead);
     }
 
-    public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken token)
+    public override async Task WriteAsync(byte[]            buffer,
+                                          int               offset,
+                                          int               count,
+                                          CancellationToken token)
     {
         int toRead = (int)(Remain < count ? Remain : count);
         int toOffset = offset > Remain ? 0 : offset;
@@ -147,7 +160,8 @@ public sealed class ChunkStream : Stream
     }
 
 #if NET6_0_OR_GREATER
-    public override void CopyTo(Stream destination, int bufferSize)
+    public override void CopyTo(Stream destination,
+                                int    bufferSize)
     {
         byte[] buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
 
@@ -165,7 +179,9 @@ public sealed class ChunkStream : Stream
         }
     }
 
-    public override async Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
+    public override async Task CopyToAsync(Stream            destination,
+                                           int               bufferSize,
+                                           CancellationToken cancellationToken)
     {
         byte[] buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
 
@@ -227,7 +243,8 @@ public sealed class ChunkStream : Stream
         }
     }
 
-    public override long Seek(long offset, SeekOrigin origin)
+    public override long Seek(long       offset,
+                              SeekOrigin origin)
     {
         switch (origin)
         {

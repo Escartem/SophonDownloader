@@ -9,7 +9,9 @@ namespace Hi3Helper.Sophon.Helper
 {
     internal delegate Task<TResult> ActionTimeoutTaskCallback<TResult>(CancellationToken token);
 
-    internal delegate void ActionOnTimeOutRetry(int retryAttemptCount, int retryAttemptTotal, int timeOutSecond,
+    internal delegate void ActionOnTimeOutRetry(int retryAttemptCount,
+                                                int retryAttemptTotal,
+                                                int timeOutSecond,
                                                 int timeOutStep);
 
     internal static class TaskExtensions
@@ -17,12 +19,13 @@ namespace Hi3Helper.Sophon.Helper
         internal const int DefaultTimeoutSec   = 20;
         internal const int DefaultRetryAttempt = 10;
 
-        internal static async Task<TResult> WaitForRetryAsync<TResult>(Func<ActionTimeoutTaskCallback<TResult>> funcCallback,
-                                                                       int?                                     timeout       = null,
-                                                                       int?                                     timeoutStep   = null,
-                                                                       int?                                     retryAttempt  = null,
-                                                                       ActionOnTimeOutRetry                     actionOnRetry = null,
-                                                                       CancellationToken                        fromToken     = default)
+        internal static async Task<TResult>
+            WaitForRetryAsync<TResult>(Func<ActionTimeoutTaskCallback<TResult>> funcCallback,
+                                       int?                                     timeout       = null,
+                                       int?                                     timeoutStep   = null,
+                                       int?                                     retryAttempt  = null,
+                                       ActionOnTimeOutRetry                     actionOnRetry = null,
+                                       CancellationToken                        fromToken     = default)
         {
             if (timeout == null)
             {

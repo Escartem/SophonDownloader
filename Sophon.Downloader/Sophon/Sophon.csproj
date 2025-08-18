@@ -8,8 +8,8 @@
 		<IsAotCompatible>true</IsAotCompatible>
 		<IsTrimmable>true</IsTrimmable>
 
-        <Version>1.6.0</Version>
-        <AssemblyVersion>1.6.0</AssemblyVersion>
+        <Version>1.7.1</Version>
+        <AssemblyVersion>1.7.1</AssemblyVersion>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<AssemblyName>Sophon</AssemblyName>
 		<AssemblyTitle>Sophon - A deserializer and downloader for the new HoYoverse/miHoYo Launcher's Sophon chunk-based download method.</AssemblyTitle>
@@ -21,7 +21,7 @@
 		<PackageTags>sophon</PackageTags>
 		<IsAotCompatible>true</IsAotCompatible>
 	</PropertyGroup>
-	
+
 	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
 		<DebugType>portable</DebugType>
 	</PropertyGroup>
@@ -41,8 +41,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Google.Protobuf" Version="3.30.0" />
-		<PackageReference Include="Google.Protobuf.Tools" Version="3.30.0">
+		<PackageReference Include="Google.Protobuf" Version="$(GoogleProtobufVersion)" />
+		<PackageReference Include="Google.Protobuf.Tools" Version="$(GoogleProtobufVersion)">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -55,14 +55,29 @@
 		<PackageReference Include="System.Threading.Tasks.Dataflow" Version="*" Condition="$(DefineConstants.Contains('NETSTANDARD2_0'))" />
 	</ItemGroup>
 
-	<Target Name="GenerateProto-SophonManifestProto" Inputs="$(ProjectDir)Protos\SophonManifestProto.proto" Outputs="$(ProjectDir)Protos\SophonManifestProto.cs" BeforeTargets="BeforeBuild">
-		<Message Text="Generating Genshin gateway proto code..." Importance="high" />
-		<Exec Command="&quot;$(NugetPackageRoot)\google.protobuf.tools\3.30.0\tools\windows_x64\protoc.exe&quot; --proto_path=&quot;$(ProjectDir)Protos&quot; --csharp_out=&quot;$(ProjectDir)Protos&quot; &quot;$(ProjectDir)Protos\SophonManifestProto.proto&quot;" />
+	<!-- Cross-platform protoc path -->
+	<PropertyGroup>
+		<GoogleProtobufVersion>3.31.1</GoogleProtobufVersion>
+		<ProtoToolsRoot>$(NuGetPackageRoot)google.protobuf.tools/$(GoogleProtobufVersion)/tools</ProtoToolsRoot>
+		<ProtocPath Condition="$([MSBuild]::IsOSPlatform('Windows'))">$(ProtoToolsRoot)/windows_x64/protoc.exe</ProtocPath>
+		<ProtocPath Condition="$([MSBuild]::IsOSPlatform('Linux'))">$(ProtoToolsRoot)/linux_x64/protoc</ProtocPath>
+		<ProtocPath Condition="$([MSBuild]::IsOSPlatform('OSX'))">$(ProtoToolsRoot)/macosx_x64/protoc</ProtocPath>
+	</PropertyGroup>
+
+	<Target Name="GenerateProto-SophonManifestProto"
+			Inputs="$(ProjectDir)Protos/SophonManifestProto.proto"
+			Outputs="$(ProjectDir)Protos/SophonManifestProto.cs"
+			BeforeTargets="BeforeBuild">
+		<Message Text="Generating SophonManifestProto C# code..." Importance="high" />
+		<Exec Command="&quot;$(ProtocPath)&quot; --proto_path=&quot;$(ProjectDir)Protos&quot; --csharp_out=&quot;$(ProjectDir)Protos&quot; &quot;$(ProjectDir)Protos/SophonManifestProto.proto&quot;" />
 	</Target>
 
-	<Target Name="GenerateProto-SophonPatchProto" Inputs="$(ProjectDir)Protos\SophonPatchProto.proto" Outputs="$(ProjectDir)Protos\SophonPatchProto.cs" BeforeTargets="BeforeBuild">
-		<Message Text="Generating Genshin gateway proto code..." Importance="high" />
-		<Exec Command="&quot;$(NugetPackageRoot)\google.protobuf.tools\3.30.0\tools\windows_x64\protoc.exe&quot; --proto_path=&quot;$(ProjectDir)Protos&quot; --csharp_out=&quot;$(ProjectDir)Protos&quot; &quot;$(ProjectDir)Protos\SophonPatchProto.proto&quot;" />
+	<Target Name="GenerateProto-SophonPatchProto"
+			Inputs="$(ProjectDir)Protos/SophonPatchProto.proto"
+			Outputs="$(ProjectDir)Protos/SophonPatchProto.cs"
+			BeforeTargets="BeforeBuild">
+		<Message Text="Generating SophonPatchProto C# code..." Importance="high" />
+		<Exec Command="&quot;$(ProtocPath)&quot; --proto_path=&quot;$(ProjectDir)Protos&quot; --csharp_out=&quot;$(ProjectDir)Protos&quot; &quot;$(ProjectDir)Protos/SophonPatchProto.proto&quot;" />
 	</Target>
 
 	<Target Name="PreCompile" BeforeTargets="Compile">

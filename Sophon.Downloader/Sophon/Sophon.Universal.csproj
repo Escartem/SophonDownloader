@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net9.0</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;net6.0;net8.0;net9.0</TargetFrameworks>
         <ImplicitUsings>disable</ImplicitUsings>
         <Platforms>x64</Platforms>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -8,8 +8,8 @@
         <IsAotCompatible>true</IsAotCompatible>
         <IsTrimmable>true</IsTrimmable>
 
-        <Version>1.6.0</Version>
-        <AssemblyVersion>1.6.0</AssemblyVersion>
+        <Version>1.7.1</Version>
+        <AssemblyVersion>1.7.1</AssemblyVersion>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <AssemblyName>Hi3Helper.Sophon.Universal</AssemblyName>
         <AssemblyTitle>Hi3Helper.Sophon - A deserializer and downloader for the new HoYoverse/miHoYo Launcher's Sophon chunk-based download method.</AssemblyTitle>

@@ -8,12 +8,12 @@ namespace Hi3Helper.Sophon
 {
     public class SophonDownloadSpeedLimiter
     {
-        internal event EventHandler<int> CurrentChunkProcessingChangedEvent;
+        internal event EventHandler<int>  CurrentChunkProcessingChangedEvent;
         internal event EventHandler<long> DownloadSpeedChangedEvent;
         // ReSharper disable once MemberCanBePrivate.Global
-        internal long? InitialRequestedSpeed { get; set; }
-        private EventHandler<long> InnerListener { get; set; }
-        internal int CurrentChunkProcessing;
+        internal long?              InitialRequestedSpeed { get; set; }
+        private  EventHandler<long> InnerListener         { get; set; }
+        internal int                CurrentChunkProcessing;
 
         private SophonDownloadSpeedLimiter(long initialRequestedSpeed)
         {

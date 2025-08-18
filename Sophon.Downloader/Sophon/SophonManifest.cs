@@ -16,7 +16,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
 using TaskExtensions = Hi3Helper.Sophon.Helper.TaskExtensions;
 
 // ReSharper disable ConvertToUsingDeclaration
@@ -53,15 +52,18 @@ namespace Hi3Helper.Sophon
         /// <exception cref="NullReferenceException">
         ///     Indicates if an argument or Http response returns a <c>null</c>.
         /// </exception>
-        public static async IAsyncEnumerable<SophonAsset> EnumerateAsync(HttpClient                  httpClient,
-                                                                         SophonChunkManifestInfoPair infoPair,
-                                                                         SophonDownloadSpeedLimiter  downloadSpeedLimiter = null,
-                                                                         [EnumeratorCancellation]
-                                                                         CancellationToken           token                = default)
+        public static async IAsyncEnumerable<SophonAsset>
+            EnumerateAsync(HttpClient                                 httpClient,
+                           SophonChunkManifestInfoPair                infoPair,
+                           SophonDownloadSpeedLimiter                 downloadSpeedLimiter = null,
+                           [EnumeratorCancellation] CancellationToken token                = default)
 
         {
-            await foreach (SophonAsset asset in EnumerateAsync(httpClient, infoPair.ManifestInfo, infoPair.ChunksInfo, downloadSpeedLimiter)
-                              .WithCancellation(token))
+            await foreach (SophonAsset asset in EnumerateAsync(httpClient,
+                                                               infoPair.ManifestInfo,
+                                                               infoPair.ChunksInfo,
+                                                               downloadSpeedLimiter,
+                                                               token))
             {
                 yield return asset;
             }
@@ -97,12 +99,12 @@ namespace Hi3Helper.Sophon
         /// <exception cref="NullReferenceException">
         ///     Indicates if an argument or Http response returns a <c>null</c>.
         /// </exception>
-        public static async IAsyncEnumerable<SophonAsset> EnumerateAsync(HttpClient                 httpClient,
-                                                                         SophonManifestInfo         manifestInfo,
-                                                                         SophonChunksInfo           chunksInfo,
-                                                                         SophonDownloadSpeedLimiter downloadSpeedLimiter = null,
-                                                                         [EnumeratorCancellation]
-                                                                         CancellationToken          token                = default)
+        public static async IAsyncEnumerable<SophonAsset>
+            EnumerateAsync(HttpClient                                 httpClient,
+                           SophonManifestInfo                         manifestInfo,
+                           SophonChunksInfo                           chunksInfo,
+                           SophonDownloadSpeedLimiter                 downloadSpeedLimiter = null,
+                           [EnumeratorCancellation] CancellationToken token                = default)
         {
         #if NET9_0_OR_GREATER
             if (!DllUtils.IsLibraryExist(DllUtils.DllName))
@@ -114,14 +116,23 @@ namespace Hi3Helper.Sophon
         #endif
 
             ActionTimeoutTaskCallback<SophonManifestProto> manifestProtoTaskCallback =
-                async innerToken => await httpClient.ReadProtoFromManifestInfo(manifestInfo, SophonManifestProto.Parser, innerToken);
+                async innerToken => await httpClient.ReadProtoFromManifestInfo(manifestInfo,
+                                                                               SophonManifestProto.Parser,
+                                                                               innerToken);
 
             SophonManifestProto manifestProto = await TaskExtensions
-               .WaitForRetryAsync(() => manifestProtoTaskCallback, TaskExtensions.DefaultTimeoutSec, null, null, null, token);
+               .WaitForRetryAsync(() => manifestProtoTaskCallback,
+                                  TaskExtensions.DefaultTimeoutSec,
+                                  null,
+                                  null,
+                                  null,
+                                  token);
 
             foreach (SophonManifestAssetProperty asset in manifestProto.Assets)
             {
-                yield return AssetProperty2SophonAsset(asset, chunksInfo, downloadSpeedLimiter);
+                yield return AssetProperty2SophonAsset(asset,
+                                                       chunksInfo,
+                                                       downloadSpeedLimiter);
             }
         }
 

@@ -24,6 +24,7 @@ using TaskExtensions = Hi3Helper.Sophon.Helper.TaskExtensions;
 // ReSharper disable UseAwaitUsing
 // ReSharper disable SuggestBaseTypeForParameter
 // ReSharper disable ForCanBeConvertedToForeach
+// ReSharper disable UnusedMember.Global
 
 namespace Hi3Helper.Sophon
 {
@@ -61,13 +62,13 @@ namespace Hi3Helper.Sophon
         /// <exception cref="NullReferenceException">
         ///     Indicates if an argument or Http response returns a <c>null</c>.
         /// </exception>
-        public static async IAsyncEnumerable<SophonAsset> EnumerateUpdateAsync(HttpClient                   httpClient,
-                                                                               SophonChunkManifestInfoPair  infoPairOld,
-                                                                               SophonChunkManifestInfoPair  infoPairNew,
-                                                                               bool                         removeChunkAfterApply,
-                                                                               SophonDownloadSpeedLimiter   downloadSpeedLimiter    = null,
-                                                                               [EnumeratorCancellation]
-                                                                               CancellationToken            token                   = default)
+        public static async IAsyncEnumerable<SophonAsset>
+            EnumerateUpdateAsync(HttpClient                                 httpClient,
+                                 SophonChunkManifestInfoPair                infoPairOld,
+                                 SophonChunkManifestInfoPair                infoPairNew,
+                                 bool                                       removeChunkAfterApply,
+                                 SophonDownloadSpeedLimiter                 downloadSpeedLimiter = null,
+                                 [EnumeratorCancellation] CancellationToken token                = default)
 
         {
             await foreach (SophonAsset asset in EnumerateUpdateAsync(httpClient,
@@ -119,15 +120,15 @@ namespace Hi3Helper.Sophon
         /// <exception cref="NullReferenceException">
         ///     Indicates if an argument or Http response returns a <c>null</c>.
         /// </exception>
-        public static async IAsyncEnumerable<SophonAsset> EnumerateUpdateAsync(HttpClient                 httpClient,
-                                                                               SophonManifestInfo         manifestInfoFrom,
-                                                                               SophonChunksInfo           chunksInfoFrom,
-                                                                               SophonManifestInfo         manifestInfoTo,
-                                                                               SophonChunksInfo           chunksInfoTo,
-                                                                               bool                       removeChunkAfterApply,
-                                                                               SophonDownloadSpeedLimiter downloadSpeedLimiter   = null,
-                                                                               [EnumeratorCancellation]                          
-                                                                               CancellationToken          token                  = default)
+        public static async IAsyncEnumerable<SophonAsset>
+            EnumerateUpdateAsync(HttpClient                                 httpClient,
+                                 SophonManifestInfo                         manifestInfoFrom,
+                                 SophonChunksInfo                           chunksInfoFrom,
+                                 SophonManifestInfo                         manifestInfoTo,
+                                 SophonChunksInfo                           chunksInfoTo,
+                                 bool                                       removeChunkAfterApply,
+                                 SophonDownloadSpeedLimiter                 downloadSpeedLimiter = null,
+                                 [EnumeratorCancellation] CancellationToken token                = default)
         {
         #if NET6_0_OR_GREATER
             if (!DllUtils.IsLibraryExist(DllUtils.DllName))
@@ -137,10 +138,16 @@ namespace Hi3Helper.Sophon
         #endif
 
             ActionTimeoutTaskCallback<SophonManifestProto> manifestFromProtoTaskCallback =
-                async innerToken => await httpClient.ReadProtoFromManifestInfo(manifestInfoFrom, SophonManifestProto.Parser, innerToken);
+                async innerToken => await httpClient
+                   .ReadProtoFromManifestInfo(manifestInfoFrom,
+                                              SophonManifestProto.Parser,
+                                              innerToken);
 
             ActionTimeoutTaskCallback<SophonManifestProto> manifestToProtoTaskCallback =
-                async innerToken => await httpClient.ReadProtoFromManifestInfo(manifestInfoTo, SophonManifestProto.Parser, innerToken);
+                async innerToken => await httpClient
+                   .ReadProtoFromManifestInfo(manifestInfoTo,
+                                              SophonManifestProto.Parser,
+                                              innerToken);
 
             SophonManifestProto manifestFromProto = await TaskExtensions
                .WaitForRetryAsync(() => manifestFromProtoTaskCallback,
@@ -160,8 +167,8 @@ namespace Hi3Helper.Sophon
 
             Dictionary<string, int> oldAssetNameIdx = GetProtoAssetHashKvpSet(manifestFromProto, x => x.AssetName);
 
-            HashSet<string> oldAssetNameHashSet = manifestFromProto.Assets.Select(x => x.AssetName).ToHashSet();
-            HashSet<string> newAssetNameHashSet = manifestToProto.Assets.Select(x => x.AssetName).ToHashSet();
+            HashSet<string> oldAssetNameHashSet = manifestFromProto.Assets.Select(x => x.AssetName).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            HashSet<string> newAssetNameHashSet = manifestToProto.Assets.Select(x => x.AssetName).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             foreach (SophonManifestAssetProperty newAssetProperty in manifestToProto.Assets.Where(x => {
                 // Try check both availabilities
@@ -212,8 +219,8 @@ namespace Hi3Helper.Sophon
             Task<long>
         #endif
             GetCalculatedDiffSizeAsync(this IAsyncEnumerable<SophonAsset> sophonAssetsEnumerable,
-                                       bool               isGetDecompressSize = true,
-                                       CancellationToken  token               = default)
+                                       bool                               isGetDecompressSize = true,
+                                       CancellationToken                  token               = default)
         {
             long sizeDiff = 0;
 
@@ -233,7 +240,9 @@ namespace Hi3Helper.Sophon
                         continue;
                     }
 
-                    sizeDiff += isGetDecompressSize ? chunks[i].ChunkSizeDecompressed : chunks[i].ChunkSize;
+                    sizeDiff += isGetDecompressSize ?
+                        chunks[i].ChunkSizeDecompressed :
+                        chunks[i].ChunkSize;
                 }
             }
 
@@ -254,7 +263,7 @@ namespace Hi3Helper.Sophon
         ///     The calculated size of the diff from between the manifest.
         /// </returns>
         public static long GetCalculatedDiffSize(this IEnumerable<SophonAsset> sophonAssetsEnumerable,
-                                                 bool isGetDecompressSize = true)
+                                                 bool                          isGetDecompressSize = true)
         {
             long sizeDiff = 0;
 
@@ -290,11 +299,14 @@ namespace Hi3Helper.Sophon
         {
             // If the targeted asset has asset type != 0 or has no MD5 hash (is directory)
             // Or if the targeted asset is not exist in the old Hash set, then act it as a new asset.
-            if (newAssetProperty.AssetType != 0 || string.IsNullOrEmpty(newAssetProperty.AssetHashMd5)
-                                                || !oldAssetNameIdx.TryGetValue(newAssetProperty.AssetName,
-                                                                                    out int oldAssetIdx))
+            if (newAssetProperty.AssetType != 0 ||
+                string.IsNullOrEmpty(newAssetProperty.AssetHashMd5) ||
+                !oldAssetNameIdx.TryGetValue(newAssetProperty.AssetName,
+                                             out int oldAssetIdx))
             {
-                return SophonManifest.AssetProperty2SophonAsset(newAssetProperty, newChunksInfo, downloadSpeedLimiter);
+                return SophonManifest.AssetProperty2SophonAsset(newAssetProperty,
+                                                                newChunksInfo,
+                                                                downloadSpeedLimiter);
             }
 
             // Now check if the asset has a patch or not.
@@ -302,14 +314,17 @@ namespace Hi3Helper.Sophon
             if (oldAssetProperty == null) // SANITY CHECK
             {
                 throw new
-                    NullReferenceException($"This SHOULD NOT be happening! The old asset proto has no reference (null) to the asset: {newAssetProperty.AssetName} at old index: {oldAssetIdx}");
+                    NullReferenceException("This SHOULD NOT be happening! The old asset proto has no" +
+                    $" reference (null) to the asset: {newAssetProperty.AssetName} at old index: {oldAssetIdx}");
             }
 
             // Iterate and get the chunks information
             RepeatedField<SophonManifestAssetChunk> oldAssetProtoChunks = oldAssetProperty.AssetChunks;
             RepeatedField<SophonManifestAssetChunk> newAssetProtoChunks = newAssetProperty.AssetChunks;
             SophonChunk[] newAssetPatchedChunks =
-                GetSophonChunkWithOldReference(oldAssetProtoChunks, newAssetProtoChunks, out bool isNewAssetHasPatch);
+                GetSophonChunkWithOldReference(oldAssetProtoChunks,
+                                               newAssetProtoChunks,
+                                               out bool isNewAssetHasPatch);
 
             // Return the new sophon asset
             string assetName = newAssetProperty.AssetName;
@@ -329,9 +344,10 @@ namespace Hi3Helper.Sophon
             };
         }
 
-        private static SophonChunk[] GetSophonChunkWithOldReference(RepeatedField<SophonManifestAssetChunk> oldProtoChunks,
-                                                                    RepeatedField<SophonManifestAssetChunk> newProtoChunks,
-                                                                    out bool isNewAssetHasPatch)
+        private static SophonChunk[]
+            GetSophonChunkWithOldReference(RepeatedField<SophonManifestAssetChunk> oldProtoChunks,
+                                           RepeatedField<SophonManifestAssetChunk> newProtoChunks,
+                                           out bool                                isNewAssetHasPatch)
         {
             // Get the length of both old and new chunks from proto
             int           oldReturnChunksLen = oldProtoChunks.Count;
@@ -345,12 +361,12 @@ namespace Hi3Helper.Sophon
             Dictionary<string, int> oldChunkNameIdx = new Dictionary<string, int>();
             for (int i = 0; i < oldReturnChunksLen; i++)
             {
-            #if NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
                 if (!oldChunkNameIdx.TryAdd(oldProtoChunks[i].ChunkDecompressedHashMd5, i))
                 {
                     DummyInstance.PushLogWarning($"Chunk: {oldProtoChunks[i].ChunkName} is duplicated!");
                 }
-            #else
+#else
                 if (oldChunkNameIdx.ContainsKey(oldProtoChunks[i].ChunkDecompressedHashMd5))
                 {
                     DummyInstance.PushLogWarning($"Chunk: {oldProtoChunks[i].ChunkName} is duplicated!");
@@ -358,7 +374,7 @@ namespace Hi3Helper.Sophon
                 }
 
                 oldChunkNameIdx.Add(oldProtoChunks[i].ChunkDecompressedHashMd5, i);
-            #endif
+#endif
             }
 
             // Iterate the new chunk to be processed for finding match old chunk
@@ -371,10 +387,11 @@ namespace Hi3Helper.Sophon
                 SophonChunk newChunk = new SophonChunk
                 {
                     ChunkName = newProtoChunk.ChunkName,
-                    ChunkHashDecompressed = Extension.HexToBytes(newProtoChunk.ChunkDecompressedHashMd5
-                                                             #if !NET6_0_OR_GREATER
-                                                                              .AsSpan()
-                                                             #endif
+                    ChunkHashDecompressed = Extension.HexToBytes(
+                        newProtoChunk.ChunkDecompressedHashMd5
+#if !NET6_0_OR_GREATER
+                          .AsSpan()
+#endif
                                                                 ),
                     ChunkOldOffset        = -1, // Set as default (-1 means no old chunk reference [aka new diff])
                     ChunkOffset           = newProtoChunk.ChunkOnFileOffset,
@@ -399,8 +416,9 @@ namespace Hi3Helper.Sophon
             return newReturnChunks;
         }
 
-        private static Dictionary<string, int> GetProtoAssetHashKvpSet(SophonManifestProto proto,
-                                                                       Func<SophonManifestAssetProperty, string> funcDelegate)
+        private static Dictionary<string, int>
+            GetProtoAssetHashKvpSet(SophonManifestProto                       proto,
+                                    Func<SophonManifestAssetProperty, string> funcDelegate)
         {
             Dictionary<string, int> hashSet = new Dictionary<string, int>();
             for (int i = 0; i < proto.Assets.Count; i++)

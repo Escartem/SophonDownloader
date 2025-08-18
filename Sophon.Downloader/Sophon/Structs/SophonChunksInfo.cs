@@ -18,9 +18,9 @@ namespace Hi3Helper.Sophon.Infos
         public bool   IsUseCompression    { get; set; }
 
         public bool Equals(SophonChunksInfo other) =>
-            ChunksBaseUrl == other?.ChunksBaseUrl && 
+            ChunksBaseUrl == other?.ChunksBaseUrl &&
             ChunksCount == other?.ChunksCount &&
-            FilesCount == other.FilesCount && 
+            FilesCount == other.FilesCount &&
             TotalSize == other.TotalSize &&
             TotalCompressedSize == other.TotalCompressedSize &&
             IsUseCompression == other.IsUseCompression;
@@ -29,7 +29,12 @@ namespace Hi3Helper.Sophon.Infos
 
         public override int GetHashCode() => 
 #if NET6_0_OR_GREATER
-            HashCode.Combine(ChunksBaseUrl, ChunksCount, FilesCount, TotalSize, TotalCompressedSize, IsUseCompression);
+            HashCode.Combine(ChunksBaseUrl,
+                             ChunksCount,
+                             FilesCount,
+                             TotalSize,
+                             TotalCompressedSize,
+                             IsUseCompression);
 #else
             ChunksBaseUrl.GetHashCode() ^
             ChunksCount.GetHashCode() ^
@@ -38,17 +43,6 @@ namespace Hi3Helper.Sophon.Infos
             TotalCompressedSize.GetHashCode() ^
             IsUseCompression.GetHashCode();
 #endif
-
-        public SophonChunksInfo CopyWithNewBaseUrl(string newBaseUrl) =>
-            new()
-            {
-                ChunksBaseUrl       = newBaseUrl,
-                ChunksCount         = ChunksCount,
-                FilesCount          = FilesCount,
-                TotalSize           = TotalSize,
-                TotalCompressedSize = TotalCompressedSize,
-                IsUseCompression    = IsUseCompression
-            };
     }
 }
 

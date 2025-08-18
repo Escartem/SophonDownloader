@@ -1,5 +1,4 @@
 ﻿using Hi3Helper.Sophon.Structs;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -30,7 +29,9 @@ namespace Hi3Helper.Sophon
                 CancellationToken token = default)
         {
             using HttpRequestMessage requestMessage = new HttpRequestMessage(httpMethod, url);
-            using HttpResponseMessage responseMessage = await client.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead, token);
+            using HttpResponseMessage responseMessage = await client.SendAsync(requestMessage,
+                                                                               HttpCompletionOption.ResponseHeadersRead,
+                                                                               token);
             responseMessage.EnsureSuccessStatusCode();
 
 #if NET6_0_OR_GREATER
@@ -54,12 +55,21 @@ namespace Hi3Helper.Sophon
 #endif
         }
 
+        public static
+            Task<SophonChunkManifestInfoPair>
+            CreateSophonChunkManifestInfoPair(HttpClient client,
+                                              string url,
+                                              string matchingField = null,
+                                              CancellationToken token = default)
+            => CreateSophonChunkManifestInfoPair(client, url, matchingField, true, token);
+
         public static async
             Task<SophonChunkManifestInfoPair>
             CreateSophonChunkManifestInfoPair(HttpClient        client,
                                               string            url,
-                                              string            matchingField = null,
-                                              CancellationToken token         = default)
+                                              string            matchingField     = null,
+                                              bool              isThrowIfNotFound = true,
+                                              CancellationToken token             = default)
         {
             var sophonBranch = await GetSophonBranchInfo
 #if !NET6_0_OR_GREATER
@@ -89,41 +99,40 @@ namespace Hi3Helper.Sophon
             }
 
             var sophonManifestIdentity =
-                sophonBranch.Data.ManifestIdentityList?.FirstOrDefault(x => x.MatchingField == matchingField);
+                sophonBranch.Data.ManifestIdentityList?
+                   .FirstOrDefault(x => x.MatchingField == matchingField);
 
-            if (sophonManifestIdentity == null)
+            if (sophonManifestIdentity != null)
             {
-                throw new KeyNotFoundException($"Sophon manifest with matching field: {matchingField} is not found!");
+                return new SophonChunkManifestInfoPair
+                {
+                    ChunksInfo = CreateChunksInfo(sophonManifestIdentity.ChunksUrlInfo.UrlPrefix,
+                                                  sophonManifestIdentity.ChunkInfo.ChunkCount,
+                                                  sophonManifestIdentity.ChunkInfo.FileCount,
+                                                  sophonManifestIdentity.ChunksUrlInfo.IsCompressed,
+                                                  sophonManifestIdentity.ChunkInfo.UncompressedSize,
+                                                  sophonManifestIdentity.ChunkInfo.CompressedSize),
+                    ManifestInfo = CreateManifestInfo(sophonManifestIdentity.ManifestUrlInfo.UrlPrefix,
+                                                      sophonManifestIdentity.ManifestFileInfo.Checksum,
+                                                      sophonManifestIdentity.ManifestFileInfo.FileName,
+                                                      sophonManifestIdentity.ManifestUrlInfo.IsCompressed,
+                                                      sophonManifestIdentity.ManifestFileInfo.UncompressedSize,
+                                                      sophonManifestIdentity.ManifestFileInfo.CompressedSize),
+                    OtherSophonBuildData = sophonBranch.Data,
+                    MatchingField        = sophonManifestIdentity.MatchingField,
+                    CategoryName         = sophonManifestIdentity.CategoryName,
+                    CategoryId           = sophonManifestIdentity.CategoryId
+                };
             }
 
-            if (sophonManifestIdentity == null)
-                throw new Exception("sophonManifestIdentity is null");
-            if (sophonBranch == null)
-                throw new Exception("sophonBranch is null");
+            if (isThrowIfNotFound)
+                throw new KeyNotFoundException($"Sophon manifest with matching field: {matchingField} is not found!");
 
             return new SophonChunkManifestInfoPair
             {
-                ChunksInfo = sophonManifestIdentity.ChunkInfo != null && sophonManifestIdentity.ChunksUrlInfo != null
-        ? CreateChunksInfo(
-            sophonManifestIdentity.ChunksUrlInfo.UrlPrefix,
-            sophonManifestIdentity.ChunkInfo.ChunkCount,
-            sophonManifestIdentity.ChunkInfo.FileCount,
-            sophonManifestIdentity.ChunksUrlInfo.IsCompressed,
-            sophonManifestIdentity.ChunkInfo.UncompressedSize,
-            sophonManifestIdentity.ChunkInfo.CompressedSize)
-        : null,
-
-                ManifestInfo = sophonManifestIdentity.ManifestFileInfo != null && sophonManifestIdentity.ManifestUrlInfo != null
-        ? CreateManifestInfo(
-            sophonManifestIdentity.ManifestUrlInfo.UrlPrefix,
-            sophonManifestIdentity.ManifestFileInfo.Checksum,
-            sophonManifestIdentity.ManifestFileInfo.FileName,
-            sophonManifestIdentity.ManifestUrlInfo.IsCompressed,
-            sophonManifestIdentity.ManifestFileInfo.UncompressedSize,
-            sophonManifestIdentity.ManifestFileInfo.CompressedSize)
-        : null,
-
-                OtherSophonBuildData = sophonBranch?.Data
+                IsFound       = false,
+                ReturnCode    = 404,
+                ReturnMessage = $"Sophon manifest with matching field: {matchingField} is not found!"
             };
         }
     }
