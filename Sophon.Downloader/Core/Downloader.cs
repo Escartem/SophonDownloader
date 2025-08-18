@@ -122,11 +122,6 @@ namespace Core
                                     null,
                                     tokenSource.Token
                                 );
-
-                                string outputPath = Path.Combine(outputDir, asset.AssetName);
-                                string outputTempPath = outputPath + "_tempUpdate";
-
-                                System.IO.File.Move(outputTempPath, outputPath, true);
                             },
                         new ExecutionDataflowBlockOptions
                         {
