@@ -26,7 +26,6 @@
                 return _scLastSpeed;
             }
 
-            _scLastSpeed = speed;
             _ = Interlocked.Exchange(ref _scLastSpeed, speed);
             _ = Interlocked.Exchange(ref _scLastReceivedBytes, 0);
             _ = Interlocked.Exchange(ref _scLastTick, Environment.TickCount64);
