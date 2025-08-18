@@ -44,7 +44,7 @@ namespace Core
                         tokenSource
                     );
 
-                    long totalSizeDiff = sophonAssets.GetCalculatedDiffSize(true);
+                    long totalSizeDiff = sophonAssets.GetCalculatedDiffSize();
                     string totalSizeDiffUnit = Utils.FormatSize(totalSizeDiff);
                     string totalSizeUnit = Utils.FormatSize(updateSize);
 
@@ -81,8 +81,6 @@ namespace Core
                         MaxDegreeOfParallelism = threads
                     };
 
-                    Stopwatch stopwatch = Stopwatch.StartNew();
-
                     try
                     {
                         foreach (string fileTemp in Directory.EnumerateFiles(outputDir, "*_tempUpdate", SearchOption.AllDirectories))
@@ -108,8 +106,11 @@ namespace Core
                                     {
                                         Interlocked.Add(ref currentRead, read);
                                         string sizeUnit = Utils.FormatSize(currentRead);
-                                        string speedUnit = Utils.FormatSize(currentRead / stopwatch.Elapsed.TotalSeconds);
-                                        if (!Program.silent) Console.Write($"{_cancelMessage} | {sizeUnit}/{totalSizeUnit} ({totalSizeDiffUnit} diff) ({speedUnit}/s) \r");
+                                        string speedUnit = Utils.FormatSize(Utils.CalculateSpeed(read));
+                                        if (!Program.silent)
+                                        {
+                                            Console.Write($"{_cancelMessage} | {sizeUnit}/{totalSizeUnit} ({totalSizeDiffUnit} diff) ({speedUnit}/s) \r");
+                                        }
                                     },
                                     null,
                                     null,
@@ -138,10 +139,6 @@ namespace Core
                             Console.WriteLine(""); // failsafe
                             Console.WriteLine("Cancelled !");
                         }
-                    }
-                    finally
-                    {
-                        stopwatch.Stop();
                     }
                 };
             }
