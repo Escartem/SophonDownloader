@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Mono.Options;
 
 namespace Core
 {
     public class Program
     {
-        public static bool silent = false;
+        public static bool silent;
         public static string action = "";
-        public static string updateFrom = "";
 
         public static async Task<int> Main(params string[] args)
         {

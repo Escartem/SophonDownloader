@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Net;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Hi3Helper.Sophon.Structs;
 using Hi3Helper.Sophon;
 using System.Threading.Tasks.Dataflow;
 
@@ -51,7 +44,7 @@ namespace Core
                         tokenSource
                     );
 
-                    long totalSizeDiff = sophonAssets.GetCalculatedDiffSize(true);
+                    long totalSizeDiff = sophonAssets.GetCalculatedDiffSize();
                     string totalSizeDiffUnit = Utils.FormatSize(totalSizeDiff);
                     string totalSizeUnit = Utils.FormatSize(updateSize);
 
@@ -88,8 +81,6 @@ namespace Core
                         MaxDegreeOfParallelism = threads
                     };
 
-                    Stopwatch stopwatch = Stopwatch.StartNew();
-
                     try
                     {
                         foreach (string fileTemp in Directory.EnumerateFiles(outputDir, "*_tempUpdate", SearchOption.AllDirectories))
@@ -115,18 +106,16 @@ namespace Core
                                     {
                                         Interlocked.Add(ref currentRead, read);
                                         string sizeUnit = Utils.FormatSize(currentRead);
-                                        string speedUnit = Utils.FormatSize(currentRead / stopwatch.Elapsed.TotalSeconds);
-                                        if (!Program.silent) Console.Write($"{_cancelMessage} | {sizeUnit}/{totalSizeUnit} ({totalSizeDiffUnit} diff) ({speedUnit}/s) \r");
+                                        string speedUnit = Utils.FormatSize(Utils.CalculateSpeed(read));
+                                        if (!Program.silent)
+                                        {
+                                            Console.Write($"{_cancelMessage} | {sizeUnit}/{totalSizeUnit} ({totalSizeDiffUnit} diff) ({speedUnit}/s) \r");
+                                        }
                                     },
                                     null,
                                     null,
                                     tokenSource.Token
                                 );
-
-                                string outputPath = Path.Combine(outputDir, asset.AssetName);
-                                string outputTempPath = outputPath + "_tempUpdate";
-
-                                System.IO.File.Move(outputTempPath, outputPath, true);
                             },
                         new ExecutionDataflowBlockOptions
                         {
@@ -150,10 +139,6 @@ namespace Core
                             Console.WriteLine(""); // failsafe
                             Console.WriteLine("Cancelled !");
                         }
-                    }
-                    finally
-                    {
-                        stopwatch.Stop();
                     }
                 };
             }

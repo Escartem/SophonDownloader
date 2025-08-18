@@ -1,0 +1,3 @@
+[submodule "Sophon.Downloader/Sophon"]
+	path = Sophon.Downloader/Sophon
+	url = https://github.com/CollapseLauncher/Hi3Helper.Sophon
