@@ -43,15 +43,21 @@ namespace Core
                     // fetch assets
                     if (!Program.silent) Console.WriteLine("Fetching assets...");
 
-                    (List<SophonAsset> sophonAssets, long updateSize) = await Assets.GetAssetsFromManifests(
+                    //(List<SophonAsset> sophonAssets, long updateSize) = await Assets.GetAssetsFromManifests(
+                    //    httpClient,
+                    //    matchingField,
+                    //    prevManifestUrl,
+                    //    newManifestUrl,
+                    //    tokenSource
+                    //);
+                    (List<Asset> sophonAssets, long updateSize) = await Manifest.GetAssetsFromManifest(
                         httpClient,
-                        matchingField,
                         prevManifestUrl,
-                        newManifestUrl,
-                        tokenSource
+                        tokenSource.Token
                     );
 
-                    long totalSizeDiff = sophonAssets.GetCalculatedDiffSize(true);
+                    //long totalSizeDiff = sophonAssets.GetCalculatedDiffSize(true);
+                    long totalSizeDiff = 0;
                     string totalSizeDiffUnit = Utils.FormatSize(totalSizeDiff);
                     string totalSizeUnit = Utils.FormatSize(updateSize);
 
@@ -99,34 +105,34 @@ namespace Core
 
                         _isRetry = false;
 
-                        ActionBlock<Tuple<SophonAsset, HttpClient>> downloadTaskQueue = new(
+                        ActionBlock<Tuple<Asset, HttpClient>> downloadTaskQueue = new(
                             async ctx =>
                             {
-                                SophonAsset asset = ctx.Item1;
+                                Asset asset = ctx.Item1;
                                 HttpClient client = ctx.Item2;
 
-                                await asset.WriteUpdateAsync(
-                                    client,
-                                    outputDir,
-                                    outputDir,
-                                    outputDir,
-                                    false,
-                                    read =>
-                                    {
-                                        Interlocked.Add(ref currentRead, read);
-                                        string sizeUnit = Utils.FormatSize(currentRead);
-                                        string speedUnit = Utils.FormatSize(currentRead / stopwatch.Elapsed.TotalSeconds);
-                                        if (!Program.silent) Console.Write($"{_cancelMessage} | {sizeUnit}/{totalSizeUnit} ({totalSizeDiffUnit} diff) ({speedUnit}/s) \r");
-                                    },
-                                    null,
-                                    null,
-                                    tokenSource.Token
-                                );
+                                //await asset.WriteUpdateAsync(
+                                //    client,
+                                //    outputDir,
+                                //    outputDir,
+                                //    outputDir,
+                                //    false,
+                                //    read =>
+                                //    {
+                                //        Interlocked.Add(ref currentRead, read);
+                                //        string sizeUnit = Utils.FormatSize(currentRead);
+                                //        string speedUnit = Utils.FormatSize(currentRead / stopwatch.Elapsed.TotalSeconds);
+                                //        if (!Program.silent) Console.Write($"{_cancelMessage} | {sizeUnit}/{totalSizeUnit} ({totalSizeDiffUnit} diff) ({speedUnit}/s) \r");
+                                //    },
+                                //    null,
+                                //    null,
+                                //    tokenSource.Token
+                                //);
 
-                                string outputPath = Path.Combine(outputDir, asset.AssetName);
-                                string outputTempPath = outputPath + "_tempUpdate";
+                                //string outputPath = Path.Combine(outputDir, asset.AssetName);
+                                //string outputTempPath = outputPath + "_tempUpdate";
 
-                                System.IO.File.Move(outputTempPath, outputPath, true);
+                                //System.IO.File.Move(outputTempPath, outputPath, true);
                             },
                         new ExecutionDataflowBlockOptions
                         {
@@ -135,9 +141,9 @@ namespace Core
                                 MaxMessagesPerTask = threads,
                             });
 
-                        foreach (SophonAsset asset in sophonAssets)
+                        foreach (Asset asset in sophonAssets)
                         {
-                            await downloadTaskQueue.SendAsync(new Tuple<SophonAsset, HttpClient>(asset, httpClient), tokenSource.Token);
+                            await downloadTaskQueue.SendAsync(new Tuple<Asset, HttpClient>(asset, httpClient), tokenSource.Token);
                         }
 
                         downloadTaskQueue.Complete();

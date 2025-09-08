@@ -117,18 +117,19 @@ namespace Core
             BranchType curBranch = Enum.Parse<BranchType>(branch, true);
             Game game = new Game(curRegion, gameId);
             SophonUrl sophonUrl = new SophonUrl(curRegion, game.GetGameId(), curBranch, launcherId, platApp);
-            await sophonUrl.GetBuildData();
+            await sophonUrl.GetBranchData();
 
             if (!silent) Console.WriteLine($"Running with {threads} threads and {maxHttpHandle} handles");
 
             if (updateFrom.Count(c => c == '.') == 1) updateFrom += ".0";
-            string prevManifest = sophonUrl.GetBuildUrl(updateFrom, false);
+            string prevBuildUrl = sophonUrl.GetBuildUrl(updateFrom, false);
+            (string prevManifest, string prevDownload) = await sophonUrl.GetBuildData(prevBuildUrl, matchingField);
             string newManifest = "";
-            if (action == "update")
-            {
-                if (updateTo.Count(c => c == '.') == 1) updateTo += ".0";
-                newManifest = sophonUrl.GetBuildUrl(updateTo, true);
-            }
+            //if (action == "update")
+            //{
+            //    if (updateTo.Count(c => c == '.') == 1) updateTo += ".0";
+            //    newManifest = sophonUrl.GetBuildUrl(updateTo, true);
+            //}
 
             await Downloader.StartDownload(prevManifest, newManifest, threads, maxHttpHandle, outputDir, matchingField);
 
